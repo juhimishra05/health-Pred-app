@@ -1,114 +1,113 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Health Prediction System</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
 
     <style>
-        body{
-            background-color:#f4f7fc;
-        }
+      body {
+        background-color: #f4f7fc;
+      }
 
-        .header-card{
-            background:white;
-            padding:25px;
-            border-radius:15px;
-            box-shadow:0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom:20px;
-        }
+      .header-card {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
 
-        .table-container{
-            background:white;
-            padding:20px;
-            border-radius:15px;
-            box-shadow:0 2px 10px rgba(0,0,0,0.1);
-        }
+      .table-container {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
 
-        .remarks{
-            font-weight:600;
-        }
+      .remarks {
+        font-weight: 600;
+      }
     </style>
+  </head>
 
-</head>
-
-<body>
-
-<div class="container mt-5">
-
-    <div class="header-card">
-
-        <h1 class="text-primary">
-            Health Prediction System
-        </h1>
+  <body>
+    <div class="container mt-5">
+      <div class="header-card">
+        <h1 class="text-primary">Health Prediction System</h1>
 
         <p class="text-muted">
-            Patient Health Monitoring and Risk Prediction Application
+          Patient Health Monitoring and Risk Prediction Application
         </p>
 
-        <a href="/add" class="btn btn-success">
-            + Add Patient
-        </a>
+        <a href="/add" class="btn btn-success"> + Add Patient </a>
+      </div>
 
-    </div>
-
-    <div class="table-container">
-
+      <div class="table-container">
         <table class="table table-hover table-bordered align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Glucose</th>
+              <th>Haemoglobin</th>
+              <th>Cholesterol</th>
+              <th>Health Prediction</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
 
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Full Name</th>
-                    <th>Email</th>
-                    <th>Glucose</th>
-                    <th>Haemoglobin</th>
-                    <th>Cholesterol</th>
-                    <th>Health Prediction</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
+          <tbody>
+            {% if patients %} {% for patient in patients %}
 
-            <tbody>
+            <tr>
+              <td>{{ patient.id }}</td>
+              <td>{{ patient.full_name }}</td>
+              <td>{{ patient.email }}</td>
+              <td>{{ "%.2f"|format(patient.glucose) }}</td>
+              <td>{{ "%.2f"|format(patient.haemoglobin) }}</td>
+              <td>{{ "%.2f"|format(patient.cholesterol) }}</td>
 
-            {% for patient in patients %}
+              <td class="remarks">{{ patient.remarks }}</td>
 
-                <tr>
-                    <td>{{patient.id}}</td>
-                    <td>{{patient.full_name}}</td>
-                    <td>{{patient.email}}</td>
-                    <td>{{patient.glucose}}</td>
-                    <td>{{patient.haemoglobin}}</td>
-                    <td>{{patient.cholesterol}}</td>
+              <td>
+                <a href="/edit/{{ patient.id }}" class="btn btn-warning btn-sm">
+                  Edit
+                </a>
 
-                    <td class="remarks">
-                        {{patient.remarks}}
-                    </td>
+                <a
+                  href="/delete/{{ patient.id }}"
+                  class="btn btn-danger btn-sm"
+                  onclick="
+                    return confirm(
+                      'Are you sure you want to delete this patient?',
+                    );
+                  "
+                >
+                  Delete
+                </a>
+              </td>
+            </tr>
 
-                    <td>
-                        <a href="/edit/{{patient.id}}" class="btn btn-warning btn-sm">
-                            Edit
-                        </a>
+            {% endfor %} {% else %}
 
-                        <a href="/delete/{{patient.id}}" class="btn btn-danger btn-sm"
-                           onclick="return confirm('Are you sure you want to delete this patient?');">
-                            Delete
-                        </a>
-                    </td>
+            <tr>
+              <td colspan="8" class="text-center text-muted">
+                No patient records found. Click "Add Patient" to create a
+                record.
+              </td>
+            </tr>
 
-                </tr>
-
-            {% endfor %}
-
-            </tbody>
-
+            {% endif %}
+          </tbody>
         </table>
-
+      </div>
     </div>
-
-</div>
-
-</body>
+  </body>
 </html>
