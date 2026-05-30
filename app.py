@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 import joblib
+import re
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -9,7 +11,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# Load trained ML model safely
+# Load ML Model
 try:
     model = joblib.load("model.pkl")
 except Exception:
@@ -27,10 +29,31 @@ class Patient(db.Model):
     remarks = db.Column(db.String(500))
 
 
+# Email Validation
+def is_valid_email(email):
+    pattern = r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
+    return re.match(pattern, email)
+
+
+# DOB Validation
+def is_valid_dob(dob):
+    try:
+        dob_date = datetime.strptime(dob, "%Y-%m-%d")
+
+        if dob_date > datetime.now():
+            return False
+
+        return True
+
+    except:
+        return False
+
+
+# ML Prediction
 def predict_health(glucose, haemoglobin, cholesterol):
 
     if model is None:
-        return "Prediction unavailable"
+        return "Prediction Unavailable"
 
     try:
         prediction = model.predict(
@@ -39,10 +62,11 @@ def predict_health(glucose, haemoglobin, cholesterol):
 
         return prediction[0]
 
-    except Exception:
-        return "Prediction unavailable"
+    except:
+        return "Prediction Unavailable"
 
 
+# READ
 @app.route('/')
 def index():
 
@@ -54,6 +78,7 @@ def index():
     )
 
 
+# CREATE
 @app.route('/add', methods=['GET', 'POST'])
 def add_patient():
 
@@ -62,6 +87,19 @@ def add_patient():
         full_name = request.form['full_name']
         dob = request.form['dob']
         email = request.form['email']
+
+        # Validation
+        if not is_valid_email(email):
+            return render_template(
+                'add_patient.html',
+                error="Invalid Email Format"
+            )
+
+        if not is_valid_dob(dob):
+            return render_template(
+                'add_patient.html',
+                error="Invalid Date of Birth"
+            )
 
         glucose = float(request.form['glucose'])
         haemoglobin = float(request.form['haemoglobin'])
@@ -91,6 +129,7 @@ def add_patient():
     return render_template('add_patient.html')
 
 
+# UPDATE
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit_patient(id):
 
@@ -101,6 +140,21 @@ def edit_patient(id):
         patient.full_name = request.form['full_name']
         patient.dob = request.form['dob']
         patient.email = request.form['email']
+
+        # Validation
+        if not is_valid_email(patient.email):
+            return render_template(
+                'edit_patient.html',
+                patient=patient,
+                error="Invalid Email Format"
+            )
+
+        if not is_valid_dob(patient.dob):
+            return render_template(
+                'edit_patient.html',
+                patient=patient,
+                error="Invalid Date of Birth"
+            )
 
         patient.glucose = float(request.form['glucose'])
         patient.haemoglobin = float(request.form['haemoglobin'])
@@ -122,6 +176,7 @@ def edit_patient(id):
     )
 
 
+# DELETE
 @app.route('/delete/<int:id>')
 def delete_patient(id):
 

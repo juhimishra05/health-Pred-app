@@ -31,6 +31,12 @@
             Add Patient Record
         </h2>
 
+        {% if error %}
+        <div class="alert alert-danger">
+            {{ error }}
+        </div>
+        {% endif %}
+
         <form method="POST">
 
             <div class="mb-3">
@@ -48,6 +54,7 @@
                     type="date"
                     class="form-control"
                     name="dob"
+                    max="2026-12-31"
                     required>
             </div>
 
@@ -57,6 +64,7 @@
                     type="email"
                     class="form-control"
                     name="email"
+                    placeholder="example@gmail.com"
                     required>
             </div>
 
